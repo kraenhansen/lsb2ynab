@@ -1,0 +1,22 @@
+{
+  "name": "lsb2ynab",
+  "version": "0.1.0",
+  "description": "Moving transactions from Laan & Spar bank to YNAB",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/kraenhansen/lsb2ynab.git"
+  },
+  "keywords": [
+    "ynab"
+  ],
+  "author": "Kræn Hansen <mail@kraenhansen.dk>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kraenhansen/lsb2ynab/issues"
+  },
+  "homepage": "https://github.com/kraenhansen/lsb2ynab#readme"
+}
