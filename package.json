@@ -18,5 +18,13 @@
   "bugs": {
     "url": "https://github.com/kraenhansen/lsb2ynab/issues"
   },
-  "homepage": "https://github.com/kraenhansen/lsb2ynab#readme"
+  "homepage": "https://github.com/kraenhansen/lsb2ynab#readme",
+  "dependencies": {
+    "argv": "0.0.2",
+    "bluebird": "^3.5.0",
+    "dotenv": "^2.0.0",
+    "lsb-client": "git+https://github.com/kraenhansen/lsb-client.git",
+    "moment": "^2.18.1",
+    "uuid": "^3.0.1"
+  }
 }
