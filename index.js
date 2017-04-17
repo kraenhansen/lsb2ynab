@@ -4,7 +4,8 @@ const moment = require('moment');
 const path = require('path');
 
 require('dotenv').config({
-  path: path.join(__dirname, '.env')
+  path: path.join(__dirname, '.env'),
+  silent: true
 });
 
 const transfer = require('./transfer');
