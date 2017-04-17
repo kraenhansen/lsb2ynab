@@ -4,7 +4,8 @@
   "description": "Moving transactions from Laan & Spar bank to YNAB",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "latest": "node index.js --latest"
   },
   "repository": {
     "type": "git",

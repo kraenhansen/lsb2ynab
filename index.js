@@ -8,6 +8,7 @@ require('dotenv').config({
 });
 
 const transfer = require('./transfer');
+const services = require('./services');
 
 const credentials = {
   lsb: {
@@ -34,29 +35,30 @@ argv.option([{
 }, {
   name: 'yesterday',
   type: 'boolean'
+}, {
+  name: 'latest',
+  type: 'boolean'
 }]);
 
 const args = argv.run();
-
-let since;
-let until;
 
 const today = moment();
 
 if(args.options.yesterday) {
   const yesterday = today.subtract(1, 'day');
-  since = moment(yesterday.format('YYYY-MM-DD'));
-  until = moment(yesterday.format('YYYY-MM-DD'));
-} else if (args.options.until) {
-  until = moment(args.options.until);
+  const since = moment(yesterday.format('YYYY-MM-DD'));
+  const until = moment(yesterday.format('YYYY-MM-DD'));
+  // Initialize clients for the services and perform the transfer
+  services.initialize(credentials).then(() => {
+    transfer(since, until, credentials);
+  });
+} else if(args.options.since) {
+  const since = moment(args.options.since);
+  const until = args.options.until ? moment(args.options.until) : today;
+  // Initialize clients for the services and perform the transfer
+  services.initialize(credentials).then(() => {
+    transfer(since, until, credentials);
+  });
 } else {
-  until = today;
+  throw new Error('Missing the --latest, --yesterday or --since argument');
 }
-
-if(!since && args.options.since) {
-  since = moment(args.options.since);
-} else if (!since) {
-  throw new Error('Missing the --since runtime argument');
-}
-
-transfer(since, until, credentials);

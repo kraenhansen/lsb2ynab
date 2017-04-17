@@ -1,30 +1,20 @@
 const assert = require('assert');
-const lsb = require('lsb-client')();
 const moment = require('moment');
 const Promise = require('bluebird');
-const uuid = require('uuid/v4');
-const ynab = require('ynab-client');
+
+const {
+  ynab,
+  lsb
+} = require('./services');
 
 const exportTransactions = (since, until, credentials) => {
-  return lsb.logon.logonpin({
-    userId: credentials.lsb.userId,
-    pin: credentials.lsb.pin
-  })
-  .then(logonResponse => {
-    return lsb.logon.selectagreement({
-      agreementNumber: credentials.lsb.agreementNumber,
-      userNumber: credentials.lsb.userNumber
-    });
-  })
-  .then(agreementResponse => {
-    // TODO: Consider getting the accountId from the agreementResponse
-    return lsb.accounts.transactions.search({
-      accountId: credentials.lsb.accountId,
-      agreementId: credentials.lsb.agreementNumber,
-      includeReservations: true,
-      transactionsFrom: since.format('YYYY-MM-DD'),
-      transactionsTo: until.format('YYYY-MM-DD')
-    });
+  // TODO: Consider getting the accountId from the agreementResponse
+  return lsb.accounts.transactions.search({
+    accountId: credentials.lsb.accountId,
+    agreementId: credentials.lsb.agreementNumber,
+    includeReservations: true,
+    transactionsFrom: since.format('YYYY-MM-DD'),
+    transactionsTo: until.format('YYYY-MM-DD')
   })
   .then(transactionsResponse => {
     return transactionsResponse.transactions;
@@ -32,15 +22,7 @@ const exportTransactions = (since, until, credentials) => {
 };
 
 const importTransactions = (transactions, credentials) => {
-  const YNAB_DEVICE_ID = uuid();
-
-  const email = credentials.ynab.email;
-  const password = credentials.ynab.password;
   const accountId = credentials.ynab.accountId;
-
-  ynab.setDeviceId(YNAB_DEVICE_ID);
-  ynab.setBudgetVersionId(credentials.ynab.budgetVersionId);
-
   const today = moment().format('YYYY-MM-DD');
   // Create these entries in YNAB
   const transactionsTransformed = transactions.map(transaction => {
@@ -58,17 +40,9 @@ const importTransactions = (transactions, credentials) => {
       memo: transaction.label
     };
   });
-
-  return ynab.loginUser({
-    email, password
-  }).then(response => {
-    return ynab.getInitialUserData();
-  })
-  .then(response => {
-    // When logged in - add the transactions, one by one
-    return Promise.each(transactionsTransformed, transaction => {
-      return ynab.addTransaction(transaction);
-    });
+  // Add the transactions, one by one
+  return Promise.each(transactionsTransformed, transaction => {
+    return ynab.addTransaction(transaction);
   });
 };
 
@@ -80,6 +54,7 @@ const transfer = (since, until, credentials) => {
     'until',
     until.format('YYYY-MM-DD')
   ].join(' ');
+
   console.log('Transfering LSB ➜ YNAB (' + when + ')');
 
   exportTransactions(since, until, credentials)
