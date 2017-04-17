@@ -48,6 +48,9 @@ if(args.options.latest) {
   // Determine when the latest transaction was performed
   services.initialize(credentials).then(() => {
     services.ynab.getTransactions().then(transactions => {
+      // Filter out tombstones / deleted transactions
+      transactions = transactions.filter(t => !t.is_tombstone);
+      // Determine the latest transaction
       if(transactions.length >= 1) {
         // Sort by military date - which is lexicographical order
         transactions.sort((a, b) => b.date.localeCompare(a.date));
@@ -57,7 +60,8 @@ if(args.options.latest) {
         throw new Error('Expected at least one transaction');
       }
     }).then(latestTransaction => {
-      const since = moment(latestTransaction.date);
+      // Transfer from the day after the latest transaction
+      const since = moment(latestTransaction.date).add(1, 'day');
       const until = today;
       transfer(since, until, credentials);
     });
