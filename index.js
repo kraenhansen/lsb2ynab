@@ -44,7 +44,25 @@ const args = argv.run();
 
 const today = moment();
 
-if(args.options.yesterday) {
+if(args.options.latest) {
+  // Determine when the latest transaction was performed
+  services.initialize(credentials).then(() => {
+    services.ynab.getTransactions().then(transactions => {
+      if(transactions.length >= 1) {
+        // Sort by military date - which is lexicographical order
+        transactions.sort((a, b) => b.date.localeCompare(a.date));
+        // Return the latest
+        return transactions[0];
+      } else {
+        throw new Error('Expected at least one transaction');
+      }
+    }).then(latestTransaction => {
+      const since = moment(latestTransaction.date);
+      const until = today;
+      transfer(since, until, credentials);
+    });
+  });
+} else if (args.options.yesterday) {
   const yesterday = today.subtract(1, 'day');
   const since = moment(yesterday.format('YYYY-MM-DD'));
   const until = moment(yesterday.format('YYYY-MM-DD'));
