@@ -55,6 +55,9 @@ const transfer = (since, until, credentials) => {
     until.format('YYYY-MM-DD')
   ].join(' ');
 
+  assert(since.isSameOrBefore(until),
+         '`since` should be same or before ´until´: ' + when);
+
   console.log('Transfering LSB ➜ YNAB (' + when + ')');
 
   exportTransactions(since, until, credentials)
