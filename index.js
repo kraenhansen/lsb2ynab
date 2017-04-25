@@ -44,6 +44,7 @@ argv.option([{
 const args = argv.run();
 
 const today = moment();
+const yesterday = today.subtract(1, 'day');
 
 if(args.options.latest) {
   // Determine when the latest transaction was performed
@@ -61,14 +62,13 @@ if(args.options.latest) {
         throw new Error('Expected at least one transaction');
       }
     }).then(latestTransaction => {
-      // Transfer from the day after the latest transaction
+      // Transfer from the day after the latest transaction until yesterday
       const since = moment(latestTransaction.date).add(1, 'day');
-      const until = today;
+      const until = yesterday;
       transfer(since, until, credentials);
     });
   });
 } else if (args.options.yesterday) {
-  const yesterday = today.subtract(1, 'day');
   const since = moment(yesterday.format('YYYY-MM-DD'));
   const until = moment(yesterday.format('YYYY-MM-DD'));
   // Initialize clients for the services and perform the transfer
